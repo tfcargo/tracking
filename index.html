@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TF Cargo - ติดตามสถานะสินค้า</title>
+  <style>
+    body {
+      font-family: 'Prompt', sans-serif;
+      background-color: #e8f5e9;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #2e7d32;
+      text-align: center;
+    }
+
+    .thank-you {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+      color: #555;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      border: 2px solid #a5d6a7;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.8rem;
+      background-color: #43a047;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #388e3c;
+    }
+
+    .result {
+      margin-top: 2rem;
+      background-color: #f1f8e9;
+      padding: 1.5rem;
+      border-radius: 10px;
+    }
+
+    .row {
+      margin-bottom: 0.8rem;
+    }
+
+    .label {
+      font-weight: bold;
+      color: #2e7d32;
+    }
+
+    .value {
+      margin-left: 0.5rem;
+    }
+
+    .error {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #ffebee;
+      color: #c62828;
+      border-radius: 8px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>TF Cargo</h1>
+    <div class="thank-you">ขอบคุณที่ใช้บริการของเรา กรุณากรอกรหัสติดตามด้านล่าง</div>
+    <input type="text" id="orderCode" placeholder="กรอกรหัสการสั่งซื้อ เช่น TF001">
+    <button onclick="trackOrder()">ตรวจสอบสถานะ</button>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    async function trackOrder() {
+      const code = document.getElementById("orderCode").value.trim();
+      const output = document.getElementById("output");
+      output.innerHTML = "";
+
+      if (!code) {
+        output.innerHTML = '<div class="error">กรุณากรอกรหัสการสั่งซื้อ</div>';
+        return;
+      }
+
+      const apiUrl = "https://script.google.com/macros/s/AKfycby0TMej4AoUkG5bplusKCVVrfIGcFjMEwhn4lmP0fTp2vUyniwtQ9UyMrwT1rJBEDEsVA/exec?code=" + encodeURIComponent(code);
+
+      try {
+        const response = await fetch(apiUrl);
+        const result = await response.json();
+
+        if (result.status === "success") {
+          const data = result.data;
+          let html = '<div class="result">';
+          for (const key in data) {
+            html += `<div class="row"><span class="label">${key}:</span><span class="value">${data[key]}</span></div>`;
+          }
+          html += '</div>';
+          output.innerHTML = html;
+        } else {
+          output.innerHTML = `<div class="error">${result.message || 'ไม่พบข้อมูลของรหัสนี้'}</div>`;
+        }
+      } catch (err) {
+        output.innerHTML = '<div class="error">เกิดข้อผิดพลาด กรุณาลองใหม่ภายหลัง</div>';
+      }
+    }
+  </script>
+</body>
+</html>
